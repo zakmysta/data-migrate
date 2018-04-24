@@ -14,6 +14,20 @@ module DataMigrate
       DataMigrator.new(:up, selected_migrations, target_version).migrate
     end
 
+    def down(target_version = nil)
+      selected_migrations = if block_given?
+        migrations.select { |m| yield m }
+      else
+        migrations
+      end
+
+      DataMigrator.new(:down, selected_migrations, target_version).migrate
+    end
+
+    def run(direction, target_version)
+      DataMigrator.new(direction, migrations, target_version).run
+    end
+
     def current_version
       get_all_versions.max || 0
     rescue ActiveRecord::NoDatabaseError

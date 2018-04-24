@@ -53,6 +53,16 @@ module DataMigrate
       def migrations_status
         DataMigrate::MigrationContext.new(migrations_paths).migrations_status
       end
+
+      #TODO: this was added to be backward compatible, need to re-evaluate
+      def migrations(_)
+        DataMigrate::MigrationContext.new(migrations_paths).migrations
+      end
+
+      #TODO: this was added to be backward compatible, need to re-evaluate
+      def run(direction, migration_paths, version)
+        DataMigrate::MigrationContext.new(migrations_paths).migrate(version)
+      end
     end
 
     private
