@@ -1,6 +1,9 @@
 require "spec_helper"
 
 describe DataMigrate::DataMigrator do
+  let(:context) {
+    DataMigrate::MigrationContext.new("spec/db/data")
+  }
 
   before do
     unless Rails::VERSION::MAJOR == 5 and
@@ -30,13 +33,55 @@ describe DataMigrate::DataMigrator do
     end
 
     it "migrates existing file" do
-      context = DataMigrate::MigrationContext.new("spec/db/data")
       context.migrate(nil)
       context.migrations_status
       versions = DataMigrate::DataSchemaMigration.normalized_versions
       expect(versions.count).to eq(2)
       expect(versions).to include("20091231235959")
       expect(versions).to include("20171231235959")
+    end
+
+    it "undo migration" do
+      context.migrate(nil)
+      context.run(:down, 20171231235959)
+      versions = DataMigrate::DataSchemaMigration.normalized_versions
+      expect(versions.count).to eq(1)
+      expect(versions).to include("20091231235959")
+    end
+
+    it "does not do anything if migration is undone twice" do
+      context.migrate(nil)
+      expect {
+        context.run(:down, 20171231235959)
+      }.to output(/Undoing SuperUpdate/).to_stdout
+      expect {
+        context.run(:down, 20171231235959)
+      }.not_to output(/Undoing SuperUpdate/).to_stdout
+    end
+
+    it "runs a specific migration" do
+      context.run(:up, 20171231235959)
+      versions = DataMigrate::DataSchemaMigration.normalized_versions
+      expect(versions.count).to eq(1)
+      expect(versions).to include("20171231235959")
+    end
+
+    it "does not do anything if migration is ran twice" do
+      expect {
+        context.run(:up, 20171231235959)
+      }.to output(/Doing SuperUpdate/).to_stdout
+      expect {
+        context.run(:down, 20171231235959)
+      }.not_to output(/Doing SuperUpdate/).to_stdout
+    end
+
+    it "alerts for an invalid specific migration" do
+      expect {
+        context.run(:up, 201712312)
+      }.to raise_error(
+        ActiveRecord::UnknownMigrationVersionError,
+        /No migration with version number 201712312/
+      )
     end
   end
 end
