@@ -67,5 +67,24 @@ module DataMigrate
       end
     end
 
+    def move(direction, steps)
+      migrator = DataMigrator.new(direction, migrations)
+
+      if current_version != 0 && !migrator.current_migration
+        raise UnknownMigrationVersionError.new(current_version)
+      end
+
+      start_index =
+        if current_version.zero?
+          0
+        else
+          migrator.migrations.index(migrator.current_migration)
+        end
+
+      finish = migrator.migrations[start_index + steps]
+      version = finish ? finish.version : 0
+      send(direction, version)
+    end
+
   end
 end

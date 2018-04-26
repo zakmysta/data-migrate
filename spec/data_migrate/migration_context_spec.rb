@@ -83,5 +83,24 @@ describe DataMigrate::DataMigrator do
         /No migration with version number 201712312/
       )
     end
+
+    it "rolls back latest migration" do
+      context.migrate(nil)
+      expect {
+        context.rollback
+      }.to output(/Undoing SuperUpdate/).to_stdout
+      versions = DataMigrate::DataSchemaMigration.normalized_versions
+      expect(versions.count).to eq(1)
+      expect(versions).to include("20091231235959")
+    end
+
+    it "rolls back 2 migrations" do
+      context.migrate(nil)
+      expect {
+        context.rollback(2)
+      }.to output(/Undoing SomeName/).to_stdout
+      versions = DataMigrate::DataSchemaMigration.normalized_versions
+      expect(versions.count).to eq(0)
+    end
   end
 end

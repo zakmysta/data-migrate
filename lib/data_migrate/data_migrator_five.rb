@@ -63,6 +63,10 @@ module DataMigrate
       def run(direction, _migration_paths, version)
         DataMigrate::MigrationContext.new.run(direction, version)
       end
+
+      def rollback(_migrations_path, steps)
+        DataMigrate::MigrationContext.new.rollback(steps)
+      end
     end
 
     private
