@@ -55,12 +55,12 @@ module DataMigrate
       end
 
       #TODO: this was added to be backward compatible, need to re-evaluate
-      def migrations(_)
+      def migrations(_migrations_paths)
         DataMigrate::MigrationContext.new(migrations_paths).migrations
       end
 
       #TODO: this was added to be backward compatible, need to re-evaluate
-      def run(direction, migration_paths, version)
+      def run(_direction, _migration_paths, version)
         DataMigrate::MigrationContext.new(migrations_paths).migrate(version)
       end
     end
