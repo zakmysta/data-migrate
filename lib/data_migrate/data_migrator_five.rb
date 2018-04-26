@@ -60,8 +60,8 @@ module DataMigrate
       end
 
       #TODO: this was added to be backward compatible, need to re-evaluate
-      def run(direction, migration_paths, version)
-        DataMigrate::MigrationContext.new.run(direction,version)
+      def run(direction, _migration_paths, version)
+        DataMigrate::MigrationContext.new.run(direction, version)
       end
     end
 
