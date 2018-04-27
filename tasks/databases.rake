@@ -243,7 +243,6 @@ namespace :db do
   end
 end
 
-require 'pry'
 namespace :data do
   desc 'Migrate data migrations (options: VERSION=x, VERBOSE=false)'
   task :migrate => :environment do
